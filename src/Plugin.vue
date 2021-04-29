@@ -1,43 +1,74 @@
 <template>
-  <div>
-    Google snippet preview:
-    <div class="p-metatags__preview">
-      <div class="p-metatags__google-title">{{ model.title || 'Your title' }}</div>
-      <div class="p-metatags__google-link">yoursite.com/example</div>
-      <div class="p-metatags__google-description">{{ model.description || 'Your description' }}</div>
-    </div>
-    <div class="uk-form-row">
-      <label>Meta Title</label>
-      <input type="text" placeholder="Your title" v-model="model.title" class="uk-width-1-1">
+  <div class="integration">
+    
+    <div v-if="!modalIsOpen">
+      <IntegrationItem v-if="model.item" :item=model.item></IntegrationItem>
+      <button class="uk-button uk-width-1-1 uk-margin-small-top" @click.prevent=openSelection>Choisir produit</button>
     </div>
 
-    <div class="uk-form-row">
-      <label>Meta description</label>
-      <textarea rows="4" placeholder="Your description" v-model="model.description" class="uk-width-1-1"></textarea>
+    <div class="uk-form" v-if="modalIsOpen">
+      <IntegrationSelection :options=options :connector=connector :select=selectItem :current=model.item :close=closeSelection></IntegrationSelection>      
     </div>
   </div>
 </template>
 
 <script>
+import IntegrationItem from './IntegrationItem'
+import IntegrationSelection from './IntegrationSelection'
+import initStorefrontApi from 'shopify-storefront-api'
+
 export default {
   mixins: [window.Storyblok.plugin],
+  data() {
+    return {
+      modalIsOpen: false,
+      connector: null,
+    }
+  },
   methods: {
     initWith() {
       return {
         // needs to be equal to your storyblok plugin name
-        plugin: 'my-plugin-name',
-        title: '',
-        description: ''
+        plugin: 'test-lafr-product',
+        item: null
       }
     },
     pluginCreated() {
-      // eslint-disable-next-line
-      console.log('View source and customize: https://github.com/storyblok/storyblok-fieldtype')
+      this.checkOptions()
+      const { shopify_token, shopify_url } = this.options
+      this.connector = initStorefrontApi(shopify_token, shopify_url)
+    },
+    openSelection() {
+      this.modalIsOpen = true
+      this.$emit('toggle-modal', true)
+    },
+    closeSelection() {
+      this.modalIsOpen = false
+      this.$emit('toggle-modal', false)
+    },
+    selectItem(item) {
+      this.model.item = item
+    },
+    checkOptions() {
+      if (typeof this.options.shopify_url === 'undefined') {
+        // eslint-disable-next-line
+        console.error(`Please provide the option 'endpoint' with your endpoint url as value`)
+      }
+      if (typeof this.options.shopify_token === 'undefined') {
+        // eslint-disable-next-line
+        console.info(`If you need an authentication using Basic Auth add a option with the name token.`)
+        // eslint-disable-next-line
+        console.info(`Your provided token will be used as username performing a Basic Auth, the password will be left blank`)
+      }
     }
+  },
+  components: {
+    IntegrationItem,
+    IntegrationSelection
   },
   watch: {
     'model': {
-      handler: function (value) {
+      handler(value) {
         this.$emit('changed-model', value);
       },
       deep: true
@@ -46,20 +77,33 @@ export default {
 }
 </script>
 
-<style>
-  .p-metatags__google-title {
-    color: blue;
-    text-decoration: underline;
-  }
-
-  .p-metatags__google-link {
-    color: green;
-  }
-
-  .p-metatags__preview {
-    margin: 5px 0 15px;
-    padding: 10px;
-    color: #000;
-    background: #FFF;
-  }
+<style> 
+.integration-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+.integration-item__left {
+  width: 60px;
+  height: 60px;
+  min-height: 60px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  background: #eee;
+}
+.integration-item__image {
+  display: block;
+  height: 60px;
+  max-width: 60px;
+  max-height: 60px;
+  margin: 0 auto;
+}
+.integration-item__right {
+  flex-grow: 1;
+  padding-left: 10px;
+  word-wrap: break-word;
+}
 </style>
