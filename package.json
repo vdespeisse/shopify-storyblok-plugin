@@ -1,24 +1,7 @@
 {
-  "name": "storyblok-fieldtype",
-  "description": "A Storyblok Field-Type Plugin Project",
-  "author": {
-    "name": "Storyblok",
-    "email": "it@storyblok.com",
-    "url": "https://www.storyblok.com/"
-  },
-  "contributors": [
-    {
-      "name": "Alexander Feiglstorfer",
-      "email": "af@storyblok.com",
-      "url": "https://www.storyblok.com/"
-    },
-    {
-      "name": "Dominik Angerer",
-      "email": "da@storyblok.com",
-      "url": "https://www.storyblok.com/"
-    }
-  ],
-  "version": "2.0.0",
+  "name": "shopify-storyblok-plugin",
+  "description": "Storyblok + Shopify fieldtype plugin",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "npm run serve",
